@@ -1025,6 +1025,12 @@ var createCommand = cli.Command{
 	to potentially recover all on-chain funds, and most off-chain funds as
 	well.
 	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "password",
+			Usage: "to set new password.",
+		},
+	},
 	Action: actionDecorator(create),
 }
 
@@ -1060,21 +1066,45 @@ func create(ctx *cli.Context) error {
 	client, cleanUp := getWalletUnlockerClient(ctx)
 	defer cleanUp()
 
+	// TARTACHYOV ADDITIONS:
+
+	args := ctx.Args()
+
+	var passwordFlag []byte
+	var err error
+
+	// switch {
+	// case ctx.IsSet("password"):
+	// 	passwordFlag, err = hex.DecodeString(ctx.String("password"))
+	// case args.Present():
+	// 	passwordFlag, err = hex.DecodeString(args.First())
+	// }
+
+	if ctx.IsSet("password") {
+		passwordFlag, err = hex.DecodeString(ctx.String("password"))
+	} else if args.Present() {
+		passwordFlag, err = hex.DecodeString(args.First())
+		args = args.Tail()
+		if err != nil {
+			return fmt.Errorf("Unable to decode password: %v", err)
+		}
+	}
+
+	if err != nil {
+		return fmt.Errorf("unable to parse password: %v", err)
+	}
+
+	// END OF ADDITIONS.
+
 	// First, we'll prompt the user for their passphrase twice to ensure
 	// both attempts match up properly.
-	fmt.Printf("Input wallet password: ")
-	pw1, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return err
-	}
-	fmt.Println()
+	//fmt.Printf("Input wallet password: ")
+	pw1 := passwordFlag // EDITED TARTACHYOV
+	//fmt.Println()
 
-	fmt.Printf("Confirm wallet password: ")
-	pw2, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return err
-	}
-	fmt.Println()
+	//fmt.Printf("Confirm wallet password: ")
+	pw2 := passwordFlag // EDITED TARTACHYOV
+	//fmt.Println()
 
 	// If the passwords don't match, then we'll return an error.
 	if !bytes.Equal(pw1, pw2) {
@@ -1087,32 +1117,35 @@ func create(ctx *cli.Context) error {
 		hasMnemonic bool
 	)
 
-mnemonicCheck:
-	for {
-		fmt.Println()
-		fmt.Printf("Do you have an existing cipher seed " +
-			"mnemonic you want to use? (Enter y/n): ")
+	hasMnemonic = false // EDITED TARTACHYOV
 
-		reader := bufio.NewReader(os.Stdin)
-		answer, err := reader.ReadString('\n')
-		if err != nil {
-			return err
-		}
+	// EDITED TARTACHYOV:
+	// mnemonicCheck:
+	// 	for {
+	// 		fmt.Println()
+	// 		fmt.Printf("Do you have an existing cipher seed " +
+	// 			"mnemonic you want to use? (Enter y/n): ")
 
-		fmt.Println()
+	// 		reader := bufio.NewReader(os.Stdin)
+	// 		answer, err := reader.ReadString('\n')
+	// 		if err != nil {
+	// 			return err
+	// 		}
 
-		answer = strings.TrimSpace(answer)
-		answer = strings.ToLower(answer)
+	// 		fmt.Println()
 
-		switch answer {
-		case "y":
-			hasMnemonic = true
-			break mnemonicCheck
-		case "n":
-			hasMnemonic = false
-			break mnemonicCheck
-		}
-	}
+	// 		answer = strings.TrimSpace(answer)
+	// 		answer = strings.ToLower(answer)
+
+	// 		switch answer {
+	// 		case "y":
+	// 			hasMnemonic = true
+	// 			break mnemonicCheck
+	// 		case "n":
+	// 			hasMnemonic = false
+	// 			break mnemonicCheck
+	// 		}
+	// 	}
 
 	// If the user *does* have an existing seed they want to use, then
 	// we'll read that in directly from the terminal.
@@ -1162,15 +1195,21 @@ mnemonicCheck:
 		// Otherwise, if the user doesn't have a mnemonic that they
 		// want to use, we'll generate a fresh one with the GenSeed
 		// command.
-		fmt.Println("Your cipher seed can optionally be encrypted.")
-		fmt.Printf("Input your passphrase you wish to encrypt it " +
-			"(or press enter to proceed without a cipher seed " +
-			"passphrase): ")
-		aezeedPass1, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			return err
-		}
-		fmt.Println()
+
+		// EDITED TARTACHYOV:
+
+		// fmt.Println("Your cipher seed can optionally be encrypted.")
+		// fmt.Printf("Input your passphrase you wish to encrypt it " +
+		// "(or press enter to proceed without a cipher seed " +
+		// "passphrase): ")
+
+		// TARTACHYOV TODO: add read from flag for restore!
+
+		var aezeedPass1 []byte // , err := terminal.ReadPassword(int(syscall.Stdin))
+		// if err != nil {
+		// 	return err
+		// }
+		// fmt.Println()
 
 		if len(aezeedPass1) != 0 {
 			fmt.Printf("Confirm cipher seed passphrase: ")
