@@ -1073,26 +1073,27 @@ func create(ctx *cli.Context) error {
 	var passwordFlag []byte
 	var err error
 
-	// switch {
-	// case ctx.IsSet("password"):
-	// 	passwordFlag, err = hex.DecodeString(ctx.String("password"))
-	// case args.Present():
-	// 	passwordFlag, err = hex.DecodeString(args.First())
-	// }
-
-	if ctx.IsSet("password") {
+	switch {
+	case ctx.IsSet("password"):
 		passwordFlag, err = hex.DecodeString(ctx.String("password"))
-	} else if args.Present() {
+	case args.Present():
 		passwordFlag, err = hex.DecodeString(args.First())
-		args = args.Tail()
-		if err != nil {
-			return fmt.Errorf("Unable to decode password: %v", err)
-		}
+	default:
+		return fmt.Errorf("password missing")
+	}
+	if err != nil {
+		return err
 	}
 
-	if err != nil {
-		return fmt.Errorf("unable to parse password: %v", err)
-	}
+	// if ctx.IsSet("password") {
+	// 	passwordFlag, err = hex.DecodeString(ctx.String("password"))
+	// } else if args.Present() {
+	// 	passwordFlag, err = hex.DecodeString(args.First())
+	// 	args = args.Tail()
+	// 	if err != nil {
+	// 		return fmt.Errorf("Unable to decode password: %v", err)
+	// 	}
+	// }
 
 	// END OF ADDITIONS.
 
