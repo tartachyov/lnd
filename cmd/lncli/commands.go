@@ -1071,18 +1071,14 @@ func create(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	var passwordFlag []byte
-	var err error
 
 	switch {
 	case ctx.IsSet("password"):
-		passwordFlag, err = hex.DecodeString(ctx.String("password"))
+		passwordFlag = []byte(ctx.String("password"))
 	case args.Present():
-		passwordFlag, err = hex.DecodeString(args.First())
+		passwordFlag = []byte(args.First())
 	default:
 		return fmt.Errorf("password missing")
-	}
-	if err != nil {
-		return err
 	}
 
 	// if ctx.IsSet("password") {
