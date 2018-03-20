@@ -1066,8 +1066,6 @@ func create(ctx *cli.Context) error {
 	client, cleanUp := getWalletUnlockerClient(ctx)
 	defer cleanUp()
 
-	// TARTACHYOV ADDITIONS:
-
 	args := ctx.Args()
 
 	var passwordFlag []byte
@@ -1091,16 +1089,14 @@ func create(ctx *cli.Context) error {
 	// 	}
 	// }
 
-	// END OF ADDITIONS.
-
 	// First, we'll prompt the user for their passphrase twice to ensure
 	// both attempts match up properly.
 	//fmt.Printf("Input wallet password: ")
-	pw1 := passwordFlag // EDITED TARTACHYOV
+	pw1 := passwordFlag
 	//fmt.Println()
 
 	//fmt.Printf("Confirm wallet password: ")
-	pw2 := passwordFlag // EDITED TARTACHYOV
+	pw2 := passwordFlag
 	//fmt.Println()
 
 	// If the passwords don't match, then we'll return an error.
@@ -1114,9 +1110,8 @@ func create(ctx *cli.Context) error {
 		hasMnemonic bool
 	)
 
-	hasMnemonic = false // EDITED TARTACHYOV
+	hasMnemonic = false
 
-	// EDITED TARTACHYOV:
 	// mnemonicCheck:
 	// 	for {
 	// 		fmt.Println()
@@ -1193,8 +1188,6 @@ func create(ctx *cli.Context) error {
 		// want to use, we'll generate a fresh one with the GenSeed
 		// command.
 
-		// EDITED TARTACHYOV:
-
 		// fmt.Println("Your cipher seed can optionally be encrypted.")
 		// fmt.Printf("Input your passphrase you wish to encrypt it " +
 		// "(or press enter to proceed without a cipher seed " +
@@ -1226,9 +1219,9 @@ func create(ctx *cli.Context) error {
 			}
 		}
 
-		fmt.Println()
-		fmt.Println("Generating fresh cipher seed...")
-		fmt.Println()
+		// fmt.Println()
+		// fmt.Println("Generating fresh cipher seed...")
+		// fmt.Println()
 
 		genSeedReq := &lnrpc.GenSeedRequest{
 			AezeedPassphrase: aezeedPass1,
@@ -1244,25 +1237,26 @@ func create(ctx *cli.Context) error {
 
 	// Before we initialize the wallet, we'll display the cipher seed to
 	// the user so they can write it down.
-	mnemonicWords := cipherSeedMnemonic
+	//mnemonicWords := cipherSeedMnemonic
 
-	fmt.Println("!!!YOU MUST WRITE DOWN THIS SEED TO BE ABLE TO " +
-		"RESTORE THE WALLET!!!\n")
+	// fmt.Println("!!!YOU MUST WRITE DOWN THIS SEED TO BE ABLE TO " +
+	// 	"RESTORE THE WALLET!!!\n")
 
-	fmt.Println("---------------BEGIN LND CIPHER SEED---------------")
+	// fmt.Println("---------------BEGIN LND CIPHER SEED---------------")
 
-	numCols := 4
-	colWords := monowidthColumns(mnemonicWords, numCols)
-	for i := 0; i < len(colWords); i += numCols {
-		fmt.Printf("%2d. %3s  %2d. %3s  %2d. %3s  %2d. %3s\n",
-			i+1, colWords[i], i+2, colWords[i+1], i+3,
-			colWords[i+2], i+4, colWords[i+3])
-	}
+	fmt.Println(cipherSeedMnemonic)
+	// numCols := 4
+	// colWords := monowidthColumns(mnemonicWords, numCols)
+	// for i := 0; i < len(colWords); i += numCols {
+	// 	fmt.Printf("%2d. %3s  %2d. %3s  %2d. %3s  %2d. %3s\n",
+	// 		i+1, colWords[i], i+2, colWords[i+1], i+3,
+	// 		colWords[i+2], i+4, colWords[i+3])
+	// }
 
-	fmt.Println("---------------END LND CIPHER SEED-----------------")
+	// fmt.Println("---------------END LND CIPHER SEED-----------------")
 
-	fmt.Println("\n!!!YOU MUST WRITE DOWN THIS SEED TO BE ABLE TO " +
-		"RESTORE THE WALLET!!!")
+	// fmt.Println("\n!!!YOU MUST WRITE DOWN THIS SEED TO BE ABLE TO " +
+	// 	"RESTORE THE WALLET!!!")
 
 	// With either the user's prior cipher seed, or a newly generated one,
 	// we'll go ahead and initialize the wallet.
@@ -1275,7 +1269,7 @@ func create(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Println("\nlnd successfully initialized!")
+	// fmt.Println("\nlnd successfully initialized!")
 
 	return nil
 }
