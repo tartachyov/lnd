@@ -1244,7 +1244,14 @@ func create(ctx *cli.Context) error {
 
 	// fmt.Println("---------------BEGIN LND CIPHER SEED---------------")
 
-	fmt.Println(cipherSeedMnemonic)
+	var cipherSeedMnemonicInline = cipherSeedMnemonic[0]
+	for i, w := range cipherSeedMnemonic {
+		if i != 0 {
+			cipherSeedMnemonicInline = cipherSeedMnemonicInline + " " + w
+		}
+	}
+
+	fmt.Println(cipherSeedMnemonicInline)
 	// numCols := 4
 	// colWords := monowidthColumns(mnemonicWords, numCols)
 	// for i := 0; i < len(colWords); i += numCols {
