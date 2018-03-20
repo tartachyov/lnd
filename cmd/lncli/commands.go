@@ -1282,6 +1282,12 @@ var unlockCommand = cli.Command{
 	able to carry out its duties. An exception is if a user is running with
 	--noencryptwallet, then a default passphrase will be used.
 	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "password",
+			Usage: "to send password inline.",
+		},
+	},
 	Action: actionDecorator(unlock),
 }
 
@@ -1290,22 +1296,32 @@ func unlock(ctx *cli.Context) error {
 	client, cleanUp := getWalletUnlockerClient(ctx)
 	defer cleanUp()
 
-	fmt.Printf("Input wallet password: ")
-	pw, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return err
+	args := ctx.Args()
+
+	var passwordFlag []byte
+
+	switch {
+	case ctx.IsSet("password"):
+		passwordFlag = []byte(ctx.String("password"))
+	case args.Present():
+		passwordFlag = []byte(args.First())
+	default:
+		return fmt.Errorf("password missing")
 	}
-	fmt.Println()
+
+	// fmt.Printf("Input wallet password: ")
+	pw := passwordFlag //terminal.ReadPassword(int(syscall.Stdin))
+	// fmt.Println()
 
 	req := &lnrpc.UnlockWalletRequest{
 		WalletPassword: pw,
 	}
-	_, err = client.UnlockWallet(ctxb, req)
+	_, err := client.UnlockWallet(ctxb, req)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("\nlnd successfully unlocked!")
+	fmt.Println("lnd successfully unlocked!")
 
 	return nil
 }
